@@ -28,7 +28,7 @@ Algorithm notes
 
 Issues
 The nearbySearch for 7-Elevens is conducted by keyword. Five to ten percent of the results are not 7-Elevens, but simply mention 7-Eleven in the description or by customer review.
-Hitting the enter key only sometimes launches calculateRoute, and sometimes the button must be clicked twice before it will respond.
+The search area for an origin with no destination needs a special case to function better.
 
 Solutions
 Compile a text file of all 7-Elevens in Chicago. Pro: Geocoding would no longer be necesarry for computing coordinates. Con: This benefit will only apply to Chicago.
@@ -37,4 +37,5 @@ Compile a text file of all 7-Elevens in Chicago. Pro: Geocoding would no longer 
 To do
 Have calculateRoute present user with a choice of multiple routes with different numbers of 7-Eleven waypoints and appropriate travel times. The user will select which one will be displayed by clickable button.
 Change the search area for an origin with no destination.
-Fix issues.
+Check cross browser compatibility.
+Check smart phone/tablet compatibility.

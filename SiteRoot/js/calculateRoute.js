@@ -45,19 +45,19 @@ var endCoords = new google.maps.LatLngBounds();
     
 function getCoordinates(setSearchAreaCB) {
     geocoder.geocode( {'address':directionsRequest.origin}, function(results, status){
-        if(status === google.maps.GeocoderStatus.OK)
-            startCoords = results[0].geometry.location;
-        else
-            alert("Geocoding start location failure: " + status);
-    });
-
-    geocoder.geocode( {'address':directionsRequest.destination}, function(results, status){
         if(status === google.maps.GeocoderStatus.OK) {
-            endCoords = results[0].geometry.location;
-            setSearchAreaCB(startCoords, endCoords, findStores);
+            startCoords = results[0].geometry.location;
+            geocoder.geocode( {'address':directionsRequest.destination}, function(results, status){
+                if(status === google.maps.GeocoderStatus.OK) {
+                    endCoords = results[0].geometry.location;
+                    setSearchAreaCB(startCoords, endCoords, findStores);
+                }
+                else
+                    alert("Geocoding end location failure: " + status);
+            });
         }
         else
-            alert("Geocoding end location failure: " + status);
+            alert("Geocoding start location failure: " + status);
     });
 }
 
