@@ -10,7 +10,10 @@ var strtLnDist;
 function calcRoute() {
     setInitialRoute();
     drawCurrRoute();
-    getCoordinates(setSearchArea); //Begins the callback chain, see the monster below
+    if(directionsRequest.origin === directionsRequest.destination)
+        getCoordinates(findStoresInRadius);
+    else
+        getCoordinates(setSearchArea); //Begins the callback chain, see the monster below
 }
 
 function setInitialRoute() {
@@ -50,7 +53,10 @@ function getCoordinates(setSearchAreaCB) {
             geocoder.geocode( {'address':directionsRequest.destination}, function(results, status){
                 if(status === google.maps.GeocoderStatus.OK) {
                     endCoords = results[0].geometry.location;
-                    setSearchAreaCB(startCoords, endCoords, findStores);
+                    if(startCoords !== endCoords)
+                        setSearchAreaCB(findStores);
+                    else
+                        setSearchAreaCB(slurpyRoute);
                 }
                 else
                     alert("Geocoding end location failure: " + status);
@@ -62,7 +68,7 @@ function getCoordinates(setSearchAreaCB) {
 }
 
 // TODO: the less distance between start and end, the greater the added search area.
-function setSearchArea(startCoords, endCoords, findStoresCB) { //Ugh, revisit later.
+function setSearchArea(findStoresCB) { //Ugh, revisit later.
     strtLnDist = totalCoordsDiff(startCoords, endCoords);
     var topMost, botMost, rightMost, leftMost;
     if(startCoords.lat() >= endCoords.lat()) {  //1D = 69m, so .01D = .69m
@@ -98,10 +104,28 @@ function findStores(searchArea, slurpyRouteCB) {
     });
 }
 
+function findStoresInRadius(slurpyRouteCB) {
+    var placesService = new google.maps.places.PlacesService(map);
+    var allStores = [];
+    placesService.nearbySearch({location:startCoords, radius:9000, keyword:"7-Eleven"}, function(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            for (var i=0; i<results.length && i<8; i++) {
+                allStores.push({
+                    location: results[i].geometry.location
+                    //stopover: false //Change to "true" if you'd rather work with suggested routes
+                });
+            };
+            slurpyRouteCB(allStores);
+        }
+        else
+            alert("Search for 7-Elevens failed: " + status);
+    });
+}
+
 function slurpyRoute(allStores) {
     directionsRequest.waypoints = allStores;
     directionsRequest.optimizeWaypoints = true;
-    if(allStores.length > 1)
+    if(allStores.length > 1 && startCoords !== endCoords)
         prepRoute();
     else
         drawCurrRoute();
